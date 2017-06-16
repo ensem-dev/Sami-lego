@@ -29,6 +29,9 @@
     <ClCompile Include="unittest1.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="TestCortex.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\dllCortex\Cortex_SDK_x64.lib">
