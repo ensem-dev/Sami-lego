@@ -1,2 +1,6 @@
 CortexTest/.vs/
 CortexTest/CortexTest.sdf
+CortexTest/ipch/
+CortexTest/CortexTest.VC.opendb
+CortexTest/CortexTest.vcxproj.user
+CortexTest/x64/

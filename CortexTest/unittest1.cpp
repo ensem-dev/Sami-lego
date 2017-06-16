@@ -12,6 +12,11 @@ namespace CortexTest
 		TEST_METHOD(TestMethod1)
 		{
 			// TODO: Ici, votre code de test
+            int expected;
+            int actual;
+            expected = 0;
+            actual = 0;
+            Assert::AreEqual(expected, actual);
 		}
 
 	};
