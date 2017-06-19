@@ -120,7 +120,7 @@ namespace CortexTest
             char buff[255];
             int isConnected = Cortex_IsClientCommunicationEnabled();
             char *host_matlab = "192.168.1.103";  //TODO trouver l'IP de la machine courante
-            int retval;
+            //int retval;
             if (getCortexConnexion(ipCortexServer)) {
                 Logger::WriteMessage(errorMessage);
                 sFrameOfData*  positions;
