@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "CppUnitTest.h"
 
 #include "../dllCortex/Cortex.h"
 
@@ -32,9 +31,9 @@ namespace CortexTest
             //Assert::AreEqual(Convert::ToByte(1), version[1], "Minor Version");
             //Assert::AreEqual(Convert::ToByte(4), Convert::ToByte(version[2]), "Revision");
             //Assert::AreEqual(Convert::ToInt32(0), Convert::ToInt32(version[3]), "sub Revision");
-            char *expectVersion = "41100";
+            char *expectVersion = "4.1.10.0";
             Logger::WriteMessage(expectVersion);
-            sprintf_s(buff, 10, "%d%d%d%d", version[0], version[1], version[2], version[3]);
+            sprintf_s(buff, 10, "%d.%d.%d.%d", version[0], version[1], version[2], version[3]);
             Logger::WriteMessage(buff);
             Assert::AreEqual(expectVersion, buff,"pas la bonne version");
             Logger::WriteMessage("fin du test");
@@ -79,9 +78,9 @@ namespace CortexTest
                 nbBodies = bodies->nBodyDefs;
                 sprintf_s(vOut, 255, "Nb objets détectés : %d.", nbBodies);
                 Logger::WriteMessage(vOut);
-                Assert::AreEqual(2, nbBodies);
-                retval = Cortex_Exit();
-                Assert::AreEqual((int)RC_Okay, retval);
+                Assert::AreEqual(4, nbBodies);
+                //retval = Cortex_Exit();
+                //Assert::AreEqual((int)RC_Okay, retval);
             }
         }
 
@@ -112,6 +111,7 @@ namespace CortexTest
 
         TEST_METHOD(TesGetCurrentFrame) {
             char *ipCortexServer = "192.168.1.109";
+            char *errorMessage = 0;
             int numBodies;
             int nbObjTracked;
             sBodyData bodyData;
@@ -121,6 +121,7 @@ namespace CortexTest
             char *host_matlab = "192.168.1.103";  //TODO trouver l'IP de la machine courante
             int retval;
             if (getCortexConnexion(ipCortexServer)) {
+                Logger::WriteMessage(errorMessage);
                 sFrameOfData*  positions;
                 positions = Cortex_GetCurrentFrame();
                 sprintf_s(buff, 255, "numero du frame : %d.", positions->iFrame);
@@ -143,7 +144,7 @@ namespace CortexTest
                     pos = (float*)bodyData.Markers;
                     sprintf_s(buff, 255, "  position : X=%f, Y=%f, Z=%f.", pos[0], pos[1], pos[2]);
                     Logger::WriteMessage((const char *)buff);
-                    /*   coordMiddle = bodyData.Markers[7];
+                    /*  coordMiddle = bodyData.Markers[7];
                     coordFront = bodyData.Markers[6];
                     if (coordMiddle[0] == 9999999 || coordFront[0] == 9999999) {
                     //    throw(ios_base::failure("Bad data from Cortex"));
@@ -154,9 +155,9 @@ namespace CortexTest
                     ret[3] = (double)coordMiddle[2];//*.1;
                     aux = atan2((double)(coordFront[1] - coordMiddle[1]), (double)(coordFront[0] - coordMiddle[0]));
                     ret[4] = aux;*/
-                }
-                retval = Cortex_Exit();
-                Assert::AreEqual((int)RC_Okay, retval);
+               }
+                //retval = Cortex_Exit();
+                //Assert::AreEqual((int)RC_Okay, retval);
             }
         }
     };
