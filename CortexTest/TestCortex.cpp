@@ -41,14 +41,14 @@ namespace CortexTest
 
         TEST_METHOD(TestIsClientCommunicationEnabled) {
             int retval = 4;
-            retval = Cortex_IsClientCommunicationEnabled();  //Problème de link. Où est codée cette fonction ?
+            retval = Cortex_IsClientCommunicationEnabled();
             int expected = 0;
             Assert::AreEqual(expected, retval);
         }
 
         TEST_METHOD(TestConfigurePortNumbers) {
             int retval = 4;
-            retval = Cortex_ConfigurePortNumbers(0, -1, -1);  //Problème de link. Où est codée cette fonction ?
+            retval = Cortex_ConfigurePortNumbers(0, -1, -1);
             int expected = RC_Okay;
             Assert::AreEqual((int)RC_Okay, retval);
         }
@@ -81,6 +81,7 @@ namespace CortexTest
                 Assert::AreEqual(4, nbBodies);
                 //retval = Cortex_Exit();
                 //Assert::AreEqual((int)RC_Okay, retval);
+                //Cortex_SetClientCommunicationEnabled(0);
             }
         }
 
@@ -155,7 +156,8 @@ namespace CortexTest
                     ret[3] = (double)coordMiddle[2];//*.1;
                     aux = atan2((double)(coordFront[1] - coordMiddle[1]), (double)(coordFront[0] - coordMiddle[0]));
                     ret[4] = aux;*/
-               }
+                }
+                //Cortex_SetClientCommunicationEnabled(0);
                 //retval = Cortex_Exit();
                 //Assert::AreEqual((int)RC_Okay, retval);
             }
