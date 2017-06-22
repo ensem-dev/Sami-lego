@@ -23,10 +23,9 @@ struct position
 // #define DLL
 //#endif
 
-
-//#ifdef __cplusplus 
+#ifdef __cplusplus 
  extern "C" {
-//#endif 
+#endif 
     //initialise une connexion sur le serveur Cortex définit par son adresse IP
      __declspec(dllexport) int getCortexConnexion(char * ipCortexServerr, char * errorMessage);
 
@@ -35,6 +34,6 @@ struct position
 
     //Annule la connexion Cortex pour libérer proprement la mémoire et permettre d'autres connexions ultérieures
      __declspec(dllexport) int exitCortexConnexion();
-//#ifdef __cplusplus
+#ifdef __cplusplus
  }
-//#endif
+#endif

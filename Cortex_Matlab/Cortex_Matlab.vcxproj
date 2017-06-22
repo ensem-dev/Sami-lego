@@ -86,7 +86,9 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <PostBuildEvent>
-      <Command>copy "$(SolutionDir)\dllCortex\Cortex_SDK.dll" "$(TargetDir)"</Command>
+      <Command>copy "$(SolutionDir)\dllCortex\Cortex_SDK.dll" "$(TargetDir)"
+copy "$(SolutionDir)\code_matlab\*" "$(TargetDir)"
+copy "$(SolutionDir)\Cortex_Matlab\Cortex_Matlab.h" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
