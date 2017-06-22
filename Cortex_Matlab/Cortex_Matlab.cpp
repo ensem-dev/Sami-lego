@@ -21,19 +21,19 @@ int getCortexConnexion(char * ipCortexServer, char * errorMessage) {
         if (retval == RC_Okay) {
             isConnected = Cortex_IsClientCommunicationEnabled();
             //Logger::WriteMessage("Ok c'est bon on a initialisé une connexion");
-            sprintf_s(errorMessage, 255, "Ok c'est bon on a initialisé une connexion");
+//            sprintf_s(errorMessage, 255, "Ok c'est bon on a initialisé une connexion");
                  }
         else {
             isConnected = false;
             //Logger::WriteMessage("Aie y a un problème");
-            sprintf_s(errorMessage, 255, "Aie y a un problème, on aurrait dû avoir une connexion");
+ //           sprintf_s(errorMessage, 255, "Aie y a un problème, on aurrait dû avoir une connexion");
             //Assert::Fail(L"on ne devrait sortir par là - la connexion ne c'est pas faite");
             //TODO throw error with errorCode
         }
     }
     else {
         //Logger::WriteMessage("Déjà connexté");
-        sprintf_s(errorMessage, 255, "Déjà connexté");
+ //       sprintf_s(errorMessage, 255, "Déjà connexté");
     }
     return isConnected;
 }
@@ -51,15 +51,11 @@ int exitCortexConnexion() {
 /**
  * met à jour les coordonnées X, Y, Z de l'objet [objectIndex] ainsi que les angles azimut (angle horizontal) et elevation
  */
-int getObjectPositionCortex(int objectIndex, double* X, double* Y, double* Z, double* azimut, double* elevation) {
+int getObjectPositionCortex(int objectIndex, float* X, float* Y, float* Z, double* azimut, double* elevation) {
     int retval = 1;
     sBodyData bodyData;
-    float *coordonnees_centre_essieu;
-
-    float *coordonnees_avt;
-    float *x_avt = new float;
-    float *y_avt = new float;
-    float *z_avt = new float;
+    int mark_centre_gravite = 4;
+    int mark_direction = 6;
 
     if (Cortex_IsClientCommunicationEnabled()) {
         // A chaque appel on demande la dernière position connue
@@ -68,18 +64,12 @@ int getObjectPositionCortex(int objectIndex, double* X, double* Y, double* Z, do
         if (objectIndex < frame->nBodies) {
             bodyData = frame->BodyData[objectIndex];
 
-            coordonnees_centre_essieu = bodyData.Markers[4];
-            *X = coordonnees_centre_essieu[0];
-            *Y = coordonnees_centre_essieu[1];
-            *Z = coordonnees_centre_essieu[2];
+            *X = bodyData.Markers[mark_centre_gravite][0];
+            *Y = bodyData.Markers[mark_centre_gravite][1];
+            *Z = bodyData.Markers[mark_centre_gravite][2];
 
-            //récupère les data du point virtuel à l'avant (celui qui définit le segment orientation)
-            coordonnees_avt = bodyData.Markers[6];
-            *x_avt = coordonnees_avt[0];
-            *y_avt = coordonnees_avt[1];
-            *z_avt = coordonnees_avt[2];
             //calcul de l'orientation du robot dans le plan de la scène (en degres)
-            *azimut = atan2((double)(coordonnees_avt[1] - coordonnees_centre_essieu[1]), (double)(coordonnees_avt[0] - coordonnees_centre_essieu[0]))*180.0 / M_PI;
+            *azimut = atan2(bodyData.Markers[mark_direction][1] - *Y, bodyData.Markers[mark_direction][0] - *X)*180.0 / M_PI;
 
             (*elevation) = 0.0;
             retval = 0;

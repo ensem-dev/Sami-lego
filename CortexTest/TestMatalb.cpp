@@ -27,10 +27,10 @@ namespace CortexTest
             int retval;
             wchar_t buff[256];
 
-            int objectIndex = 0;
-            double X = 0.0;
-            double Y = 0.0;
-            double Z = 0.0;
+            int objectIndex = 2;
+            float X = 0.0;
+            float Y = 0.0;
+            float Z = 0.0;
             double azimut = 0.0;
             double elevation = 0.0;
 
@@ -39,10 +39,13 @@ namespace CortexTest
                 retval = getObjectPositionCortex(objectIndex, &X, &Y, &Z, &azimut, &elevation);
                 Assert::AreEqual(0, retval);
                 swprintf(buff, 255, L"position X mauvaise : X=%f", X);
+                Logger::WriteMessage(buff);
                 //Assert::IsTrue(X < -22, buff);
                 swprintf(buff, 255, L"position Y mauvaise : Y=%f", Y);
+                Logger::WriteMessage(buff);
                 //Assert::IsTrue(Y > 66, buff);
                 swprintf(buff, 255, L"position Z mauvaise : Z=%f", Z);
+                Logger::WriteMessage(buff);
                 //Assert::IsTrue(Z > 158, buff);
                 //Assert::IsTrue(azimut == 0.0, L"azimut mauvais");
                 Assert::IsTrue(elevation == 1.0, L"élévation mauvaise");
