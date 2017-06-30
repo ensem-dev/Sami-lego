@@ -5,10 +5,12 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AE9D4FB6-DFEE-4E4B-8FE6-59F0311746D6}"
 	ProjectSection(SolutionItems) = preProject
+		exitCortex.m = exitCortex.m
 		code_matlab\getPosition.m = code_matlab\getPosition.m
 		code_matlab\getPositionCortex.m = code_matlab\getPositionCortex.m
 		code_matlab\openCortex.m = code_matlab\openCortex.m
 		ReadMe.md = ReadMe.md
+		code_matlab\testLego.m = code_matlab\testLego.m
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cortex_Matlab", "Cortex_Matlab\Cortex_Matlab.vcxproj", "{07F0137D-049B-49E7-A6DF-054943005206}"
