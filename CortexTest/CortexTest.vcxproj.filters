@@ -35,6 +35,9 @@
     <ClCompile Include="TestMatalb.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="TestGetHostIP.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\dllCortex\Cortex_SDK_x64.lib">
