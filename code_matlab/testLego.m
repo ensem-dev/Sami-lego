@@ -6,6 +6,8 @@ fprintf("position : x=%f, y=%f, z=%f, azimut=%f, élévation=%f\n",...
     position1(1),position1(2),position1(3),position1(4),position1(5));
 
 
+%myev3 = legoev3('WiFi','192.168.1.2','00165340e49b');
+%myev3 = legoev3('Bluetooth','COM3');
 
 mylego = legoev3;
 mymotor1 = motor(mylego, 'B');              % Set up motor

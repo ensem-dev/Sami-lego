@@ -1,9 +1,12 @@
 #pragma once
 
+
 #ifdef __cplusplus 
  extern "C" {
 #endif 
-    //initialise une connexion sur le serveur Cortex définit par son adresse IP
+     __declspec(dllexport) bool findLocalIP(char *remoteHostIP, char LocalIPBuff[20]);
+     
+     //initialise une connexion sur le serveur Cortex définit par son adresse IP
      __declspec(dllexport) int getCortexConnexion(char * ipCortexServerr, char * errorMessage);
 
     //met à jour les coordonnées X, Y, Z de l'objet [objectIndex] ainsi que les angles azimut (angle horizontal) et elevation

@@ -3,8 +3,63 @@
 #include "Cortex_Matlab.h"
 #include "../dllCortex/Cortex.h"
 
-#define _USE_MATH_DEFINES // for C  
+//Includes pour la recupération des IPs afin de trouver l'IP du bon réseau
+#include <winsock2.h>  //DWORD....
+#include <WS2tcpip.h>    //inet_ntop qui remplace inet_ntoa
+#include <IPHlpApi.h>   //MIB_IPADDRTABLE
+#pragma comment(lib, "Ws2_32.lib")   // Ajouté pour inet_ntop()
+#pragma comment(lib, "IPHLPAPI.lib")  // GetIpAddrTable
+
+#define _USE_MATH_DEFINES // pour avoir accès à PI
 #include <math.h>  
+
+/**
+* Recherche l'IP local sur le même réseau que l'adresse distante
+*/
+bool findLocalIP(char *remoteHostIP, char LocalIPBuff[20]) {
+    bool retOk = false;
+    ULONG remoreIp = 0;
+    MIB_IPADDRTABLE *pIPAddrTable;
+    long dwRetVal = 0;
+    DWORD dwSize = 0;
+    int cptLocalIP = 0;
+    ULONG localSubnet;
+    ULONG remoteSubnet;
+
+    //Obtient la remote ip sous forme d'un long pour pouvoir lui applique les masques de sous réseau des IPs locales 
+    inet_pton(AF_INET, remoteHostIP, &remoreIp);
+
+    pIPAddrTable = (MIB_IPADDRTABLE*)malloc(sizeof(MIB_IPADDRTABLE));
+    if (pIPAddrTable) {
+        dwRetVal = GetIpAddrTable(pIPAddrTable, &dwSize, 0);
+        if (ERROR_INSUFFICIENT_BUFFER == dwRetVal) {
+            free(pIPAddrTable);
+            pIPAddrTable = (MIB_IPADDRTABLE*)malloc(dwSize);
+            if (pIPAddrTable) {
+                dwRetVal = GetIpAddrTable(pIPAddrTable, &dwSize, 0);
+                if (NO_ERROR == dwRetVal) {
+                    for (cptLocalIP = 0; cptLocalIP < (int)pIPAddrTable->dwNumEntries; cptLocalIP++) {
+                        localSubnet = pIPAddrTable->table[cptLocalIP].dwAddr & pIPAddrTable->table[cptLocalIP].dwMask;
+                        remoteSubnet = remoreIp & pIPAddrTable->table[cptLocalIP].dwMask;
+                        if (localSubnet == remoteSubnet) {
+                            inet_ntop(AF_INET, &pIPAddrTable->table[cptLocalIP].dwAddr, LocalIPBuff, 19);
+                            retOk = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    //TODO il faut traiter les erreur de GetIpAddrTable
+                }
+                free(pIPAddrTable);
+            }
+            else {
+                //TODO il y a eu un PB avec Malloc
+            }
+        }
+    }
+    return retOk;
+}
 
 /** 
  * Etabli une connexion avec le Host Cortex qui donne les coordonnées des objets détectés
@@ -12,11 +67,13 @@
  */
 int getCortexConnexion(char * ipCortexServer, char * errorMessage) {
     int isConnected = Cortex_IsClientCommunicationEnabled();
-    char *host_matlab = "192.168.1.103";  //TODO trouver l'IP de la machine courante
+    //char *host_matlab = "192.168.1.103";  //TODO trouver l'IP de la machine courante
+    char host_matlab[20] = "";
     int retval;
     if (!isConnected) {
         Cortex_SetClientCommunicationEnabled(1);
         //retval = Cortex_ConfigurePortNumbers(0, -1, -1);
+        findLocalIP(ipCortexServer, host_matlab);
         retval = Cortex_Initialize(host_matlab, ipCortexServer);
         if (retval == RC_Okay) {
             isConnected = Cortex_IsClientCommunicationEnabled();

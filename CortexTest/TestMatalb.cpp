@@ -11,6 +11,12 @@ namespace CortexTest
     {
     public:
 
+        TEST_METHOD(TestFindLocalIP) {
+            char localIP[20];
+            bool retval = findLocalIP("192.168.1.109", localIP);
+            Assert::IsTrue(retval);
+            Assert::AreEqual("192.168.1.103", localIP);
+        }
 
         TEST_METHOD(TestGetConnexion) {
             char *ipCortexServer = "192.168.1.109";
@@ -27,7 +33,7 @@ namespace CortexTest
             int retval;
             wchar_t buff[256];
 
-            int objectIndex = 2;
+            int objectIndex = 0;
             float X = 0.0;
             float Y = 0.0;
             float Z = 0.0;
