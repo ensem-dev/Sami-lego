@@ -5,8 +5,9 @@ position1 = getPositionCortex(idObjetLego);
 fprintf("position : x=%f, y=%f, z=%f, azimut=%f, élévation=%f\n",...
     position1(1),position1(2),position1(3),position1(4),position1(5));
 
-
-mylego = legoev3('WiFi','192.168.1.107','00165340e49b');
+if (not(exist('mylego', 'var')))
+    mylego = legoev3('WiFi','192.168.1.107','00165340e49b');
+end
 %myev3 = legoev3('Bluetooth','COM3');
 
 %mylego = legoev3;
@@ -32,4 +33,4 @@ end
 stop(mymotor1);                            % Stop motor
 stop(mymotor2);
 %exitCortex();
-clearvars;
+%clearvars;
