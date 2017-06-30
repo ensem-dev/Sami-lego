@@ -44,21 +44,49 @@ namespace CortexTest
             if (retval) {
                 retval = getObjectPositionCortex(objectIndex, &X, &Y, &Z, &azimut, &elevation);
                 Assert::AreEqual(0, retval);
-                swprintf(buff, 255, L"position X mauvaise : X=%f", X);
+                swprintf(buff, 255, L"position X  : X=%f", X);
                 Logger::WriteMessage(buff);
                 //Assert::IsTrue(X < -22, buff);
-                swprintf(buff, 255, L"position Y mauvaise : Y=%f", Y);
+                swprintf(buff, 255, L"position Y  : Y=%f", Y);
                 Logger::WriteMessage(buff);
                 //Assert::IsTrue(Y > 66, buff);
-                swprintf(buff, 255, L"position Z mauvaise : Z=%f", Z);
+                swprintf(buff, 255, L"position Z  : Z=%f", Z);
                 Logger::WriteMessage(buff);
                 //Assert::IsTrue(Z > 158, buff);
                 //Assert::IsTrue(azimut == 0.0, L"azimut mauvais");
-                Assert::IsTrue(elevation == 1.0, L"élévation mauvaise");
+                Assert::IsTrue(elevation == 0.0, L"élévation mauvaise");
             }
             else {
                 //TODO : générer une execption avec le message d'erreur errorMessage
             }
+        }
+        TEST_METHOD(TestGetObjectPositionCortex1000) {
+            char *ipCortexServer = "192.168.1.109";
+            char errorMessage[256] = "pas de message";
+            int retval;
+            char buff[256];
+
+            int objectIndex = 0;
+            float X = 0.0;
+            float Y = 0.0;
+            float Z = 0.0;
+            double azimut = 0.0;
+            double elevation = 0.0;
+            int cpt = 0;
+            while (cpt < 10000) {
+                retval = getCortexConnexion(ipCortexServer, errorMessage);
+                if (retval) {
+                    cpt++;
+                    sprintf_s(buff, 255, "%i", cpt);
+                    Logger::WriteMessage(buff);
+                }
+                else {
+                    sprintf_s(buff, 255, "Erreur de retour de getCortexConnexion : %i", retval);
+                    Logger::WriteMessage(buff);
+                    cpt = 1001;
+                }
+            }
+            exitCortexConnexion();
         }
     };
 }

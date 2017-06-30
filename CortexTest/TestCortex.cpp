@@ -86,7 +86,7 @@ namespace CortexTest
                 nbBodies = bodies->nBodyDefs;
                 sprintf_s(vOut, 255, "Nb objets détectés : %d.", nbBodies);
                 Logger::WriteMessage(vOut);
-                Assert::AreEqual(2, nbBodies);
+                Assert::AreEqual(1, nbBodies);
                 //retval = Cortex_Exit();
                 //Assert::AreEqual((int)RC_Okay, retval);
                 //Cortex_SetClientCommunicationEnabled(0);
