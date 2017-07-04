@@ -88,7 +88,9 @@
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)\dllCortex\Cortex_SDK.dll" "$(SolutionDir)\dllSami\Cortex_SDK.dll"
 copy "$(SolutionDir)\Cortex_Matlab\Cortex_Matlab.h" "$(SolutionDir)\dllSami\Cortex_Matlab.h"
-copy "$(TargetDir)\Cortex_Matlab.dll" "$(SolutionDir)\dllSami\Cortex_Matlab.dll"</Command>
+copy "$(TargetDir)\Cortex_Matlab.dll" "$(SolutionDir)\dllSami\Cortex_Matlab.dll"
+copy "$(SolutionDir)\dllCortex\Cortex_SDK.dll" "$(TargetDir)"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

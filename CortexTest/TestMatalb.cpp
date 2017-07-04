@@ -59,7 +59,9 @@ namespace CortexTest
             else {
                 //TODO : générer une execption avec le message d'erreur errorMessage
             }
+            exitCortexConnexion();
         }
+
         TEST_METHOD(TestGetObjectPositionCortex1000) {
             char *ipCortexServer = "192.168.1.109";
             char errorMessage[256] = "pas de message";
@@ -73,17 +75,23 @@ namespace CortexTest
             double azimut = 0.0;
             double elevation = 0.0;
             int cpt = 0;
+            retval = getCortexConnexion(ipCortexServer, errorMessage);
             while (cpt < 10000) {
-                retval = getCortexConnexion(ipCortexServer, errorMessage);
-                if (retval) {
+                retval = getObjectPositionCortex(objectIndex, &X, &Y, &Z, &azimut, &elevation);
+                if (!retval) {
                     cpt++;
-                    sprintf_s(buff, 255, "%i", cpt);
-                    Logger::WriteMessage(buff);
+                    //sprintf_s(buff, 255, "%i", cpt);
+                    //Logger::WriteMessage(buff);
+                    //swprintf(buff, 255, L"position X  : X=%f", X);
+                    //Logger::WriteMessage(buff);
+                    //swprintf(buff, 255, L"position Y  : Y=%f", Y);
+                    //Logger::WriteMessage(buff);
+                    //swprintf(buff, 255, L"position Z  : Z=%f", Z);
                 }
                 else {
-                    sprintf_s(buff, 255, "Erreur de retour de getCortexConnexion : %i", retval);
+                    sprintf_s(buff, 255, "Erreur de retour de getObjectPositionCortex : %i x=%f", cpt, X);
                     Logger::WriteMessage(buff);
-                    cpt = 1001;
+                    //cpt = 10001;
                 }
             }
             exitCortexConnexion();

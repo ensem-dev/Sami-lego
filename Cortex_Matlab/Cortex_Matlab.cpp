@@ -110,29 +110,44 @@ int exitCortexConnexion() {
  */
 int getObjectPositionCortex(int objectIndex, float* X, float* Y, float* Z, double* azimut, double* elevation) {
     int retval = 1;
-    sBodyData bodyData;
+    sBodyData *bodyData;
     int mark_centre_gravite = 4;
     int mark_direction = 6;
-
+    sFrameOfData *frame;
     if (Cortex_IsClientCommunicationEnabled()) {
         // A chaque appel on demande la dernière position connue
-        sFrameOfData *frame;
+        
         frame = Cortex_GetCurrentFrame();
-        if (objectIndex < frame->nBodies) {
-            bodyData = frame->BodyData[objectIndex];
+        if (frame) {
+            if (objectIndex < frame->nBodies) {
+                bodyData = &(frame->BodyData[objectIndex]);
 
-            *X = bodyData.Markers[mark_centre_gravite][0];
-            *Y = bodyData.Markers[mark_centre_gravite][1];
-            *Z = bodyData.Markers[mark_centre_gravite][2];
+                *X = bodyData->Markers[mark_centre_gravite][0];
+                *Y = bodyData->Markers[mark_centre_gravite][1];
+                *Z = bodyData->Markers[mark_centre_gravite][2];
 
-            //calcul de l'orientation du robot dans le plan de la scène (en degres)
-            *azimut = atan2(bodyData.Markers[mark_direction][1] - *Y, bodyData.Markers[mark_direction][0] - *X)*180.0 / M_PI;
+                //calcul de l'orientation du robot dans le plan de la scène (en degres)
+                *azimut = atan2(bodyData->Markers[mark_direction][1] - *Y, bodyData->Markers[mark_direction][0] - *X)*180.0 / M_PI;
 
-            (*elevation) = 0.0;
-            retval = 0;
+                (*elevation) = 0.0;
+                retval = 0;
+
+             }
+            else {
+                //TODO générer une exception car il n'y a pas l'objet demandé n'est pas dans la liste des objets suivis
+            }
+            //Cortex_FreeFrame(frame);
         }
         else {
-            //TODO générer une exception car il n'y a pas l'objet demandé n'est pas dans la liste des objets suivis
+            //TODO pas normal d'avoir une réponse vide
+//            *X = 8888888;
+//            *Y = 8888888;
+//            *Z = 8888888;
+
+            //calcul de l'orientation du robot dans le plan de la scène (en degres)
+//            *azimut = 0.0;
+
+//            (*elevation) = 0.0;
         }
     }
     else {
