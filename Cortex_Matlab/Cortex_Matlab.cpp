@@ -116,7 +116,6 @@ int getObjectPositionCortex(int objectIndex, float* X, float* Y, float* Z, doubl
     sFrameOfData *frame;
     if (Cortex_IsClientCommunicationEnabled()) {
         // A chaque appel on demande la dernière position connue
-        
         frame = Cortex_GetCurrentFrame();
         if (frame) {
             if (objectIndex < frame->nBodies) {
@@ -136,7 +135,7 @@ int getObjectPositionCortex(int objectIndex, float* X, float* Y, float* Z, doubl
             else {
                 //TODO générer une exception car il n'y a pas l'objet demandé n'est pas dans la liste des objets suivis
             }
-            //Cortex_FreeFrame(frame);
+            Cortex_FreeFrame(frame);
         }
         else {
             //TODO pas normal d'avoir une réponse vide
@@ -148,6 +147,7 @@ int getObjectPositionCortex(int objectIndex, float* X, float* Y, float* Z, doubl
 //            *azimut = 0.0;
 
 //            (*elevation) = 0.0;
+            retval = 1;
         }
     }
     else {

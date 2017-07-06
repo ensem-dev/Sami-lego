@@ -19,7 +19,7 @@ fprintf('position Lego 3 : x=%f, y=%f, z=%f, azimut=%f, élévation=%f\n',...
 
 if (not(exist('lego_01', 'var')))
    % lego_01 = legoev3('WiFi','192.168.1.101','0016535239bb');
-    lego_02 = legoev3('WiFi','192.168.1.107','00165352434a');
+  %  lego_02 = legoev3('WiFi','192.168.1.107','00165352434a');
     lego_03 = legoev3('WiFi','192.168.1.111','0016535306c1');
 end
 %myev3 = legoev3('Bluetooth','COM3');
