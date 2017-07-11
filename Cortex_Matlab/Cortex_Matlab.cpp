@@ -71,6 +71,10 @@ int getCortexConnexion(char * ipCortexServer, char ** errorMessage) {
     int isConnected = Cortex_IsClientCommunicationEnabled();
     char host_matlab[20] = "";
     int retval;
+    sBodyDefs* bodies;
+    int nbBodies;
+    char vOut[255];
+    char message[1025] = "Liste des objets suivit :\n";
     if (!isConnected) {
         Cortex_SetClientCommunicationEnabled(1);
         //retval = Cortex_ConfigurePortNumbers(0, -1, -1);
@@ -78,15 +82,24 @@ int getCortexConnexion(char * ipCortexServer, char ** errorMessage) {
         retval = Cortex_Initialize(host_matlab, ipCortexServer);
         if (retval == RC_Okay) {
             isConnected = Cortex_IsClientCommunicationEnabled();
-            *errorMessage = _strdup("Ok c'est bon on a initialise une connexion");
-                 }
-        else {
+            bodies = Cortex_GetBodyDefs();
+            if (bodies) {
+                nbBodies = bodies->nBodyDefs;
+                for (int i = 0; i < nbBodies; i++) {
+                    sprintf_s(vOut, 255, "objet %d : %s.\n", i, bodies->BodyDefs[i].szName);
+                    strcat_s(message, 1024, vOut);
+                }
+                Cortex_FreeBodyDefs(bodies);
+                *errorMessage = _strdup(message);
+            } else{
+                *errorMessage = _strdup("Ok c'est bon on a initialise une connexion, mais l'application cortex n'est pas bien démarrée");
+            }
+        } else {
             isConnected = false;
-            *errorMessage = _strdup("Aie y a un probleme, on aurrait du avoir une connexion");
+            *errorMessage = _strdup("Aie y a un problème, on aurrait dû avoir une connexion");
             //TODO throw error with errorCode
         }
-    }
-    else {
+    } else {
         *errorMessage = _strdup("Deje connexte");
     }
     return isConnected;
