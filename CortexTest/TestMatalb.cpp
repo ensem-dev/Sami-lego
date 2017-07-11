@@ -18,18 +18,44 @@ namespace CortexTest
             Assert::AreEqual("192.168.1.103", localIP);
         }
 
+        // https://msdn.microsoft.com/fr-fr/library/y471khhc.aspx
+        TEST_METHOD(Test_strdup) {
+            char buffer[] = "This is the buffer text";
+            char *newstring;
+            Logger::WriteMessage(buffer);
+            //printf("Original: %s\n", buffer);
+            newstring = _strdup(buffer);
+            //printf("Copy:     %s\n", newstring);
+            Logger::WriteMessage(newstring);
+            free(newstring);
+        }
+
+        // https://stackoverflow.com/questions/7445054/passing-pointer-argument-in-matlab-to-a-c-dll-function-foochar
+        void myGetVersion(char **str) {
+            *str = _strdup("1.0.0");
+        }
+
+        TEST_METHOD(Test_passStringArgument) {
+            char *str = NULL;
+            myGetVersion(&str);
+            printf("%s\n", str);
+            free(str);
+        }
+
         TEST_METHOD(TestGetConnexion) {
             char *ipCortexServer = "192.168.1.109";
-            char errorMessage[256] = "pas de message";
+            char *errorMessage = NULL;
             int retval;
-            retval = getCortexConnexion(ipCortexServer, errorMessage);
+            //sprintf_s(*errorMessage, 255, "pas de message");
+            retval = getCortexConnexion(ipCortexServer, &errorMessage);
             Logger::WriteMessage(errorMessage);
             Assert::AreEqual(1, retval);
+            free(errorMessage);
         }
 
         TEST_METHOD(TestGetObjectPositionCortex) {
             char *ipCortexServer = "192.168.1.109";
-            char errorMessage[256] = "pas de message";
+            char *errorMessage[256];// = "pas de message";
             int retval;
             wchar_t buff[256];
 
@@ -40,9 +66,9 @@ namespace CortexTest
             double azimut = 0.0;
             double elevation = 0.0;
 
-            retval = getCortexConnexion(ipCortexServer, errorMessage);
-            if (retval) {
-                retval = getObjectPositionCortex(objectIndex, &X, &Y, &Z, &azimut, &elevation);
+            getCortexConnexion(ipCortexServer, errorMessage);
+            //if (retval) {
+                retval = getObjectPositionCortexID(objectIndex, &X, &Y, &Z, &azimut, &elevation);
                 Assert::AreEqual(0, retval);
                 swprintf(buff, 255, L"position X  : X=%f", X);
                 Logger::WriteMessage(buff);
@@ -55,16 +81,16 @@ namespace CortexTest
                 //Assert::IsTrue(Z > 158, buff);
                 //Assert::IsTrue(azimut == 0.0, L"azimut mauvais");
                 Assert::IsTrue(elevation == 0.0, L"élévation mauvaise");
-            }
-            else {
+            //}
+            //else {
                 //TODO : générer une execption avec le message d'erreur errorMessage
-            }
+            //}
             exitCortexConnexion();
         }
 
         TEST_METHOD(TestGetObjectPositionCortex1000) {
             char *ipCortexServer = "192.168.1.109";
-            char errorMessage[256] = "pas de message";
+            char *errorMessage[256];// = "pas de message";
             int retval;
             char buff[256];
 
@@ -75,9 +101,9 @@ namespace CortexTest
             double azimut = 0.0;
             double elevation = 0.0;
             int cpt = 0;
-            retval = getCortexConnexion(ipCortexServer, errorMessage);
+            getCortexConnexion(ipCortexServer, errorMessage);
             while (cpt < 10000) {
-                retval = getObjectPositionCortex(objectIndex, &X, &Y, &Z, &azimut, &elevation);
+                retval = getObjectPositionCortexID(objectIndex, &X, &Y, &Z, &azimut, &elevation);
                 if (!retval) {
                     cpt++;
                     //sprintf_s(buff, 255, "%i", cpt);

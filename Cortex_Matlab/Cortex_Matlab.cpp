@@ -64,10 +64,11 @@ bool findLocalIP(char *remoteHostIP, char LocalIPBuff[20]) {
 /** 
  * Etabli une connexion avec le Host Cortex qui donne les coordonnées des objets détectés
  * Return : connexionOK=1 - si retour 0 alors la communication n'a pu être établie. Il faut lire le message d'erreur errorMessage 
+ *
+ * https://stackoverflow.com/questions/7445054/passing-pointer-argument-in-matlab-to-a-c-dll-function-foochar
  */
-int getCortexConnexion(char * ipCortexServer, char * errorMessage) {
+int getCortexConnexion(char * ipCortexServer, char ** errorMessage) {
     int isConnected = Cortex_IsClientCommunicationEnabled();
-    //char *host_matlab = "192.168.1.103";  //TODO trouver l'IP de la machine courante
     char host_matlab[20] = "";
     int retval;
     if (!isConnected) {
@@ -77,20 +78,16 @@ int getCortexConnexion(char * ipCortexServer, char * errorMessage) {
         retval = Cortex_Initialize(host_matlab, ipCortexServer);
         if (retval == RC_Okay) {
             isConnected = Cortex_IsClientCommunicationEnabled();
-            //Logger::WriteMessage("Ok c'est bon on a initialisé une connexion");
-//            sprintf_s(errorMessage, 255, "Ok c'est bon on a initialisé une connexion");
+            *errorMessage = _strdup("Ok c'est bon on a initialise une connexion");
                  }
         else {
             isConnected = false;
-            //Logger::WriteMessage("Aie y a un problème");
- //           sprintf_s(errorMessage, 255, "Aie y a un problème, on aurrait dû avoir une connexion");
-            //Assert::Fail(L"on ne devrait sortir par là - la connexion ne c'est pas faite");
+            *errorMessage = _strdup("Aie y a un probleme, on aurrait du avoir une connexion");
             //TODO throw error with errorCode
         }
     }
     else {
-        //Logger::WriteMessage("Déjà connexté");
- //       sprintf_s(errorMessage, 255, "Déjà connexté");
+        *errorMessage = _strdup("Deje connexte");
     }
     return isConnected;
 }
@@ -108,7 +105,7 @@ int exitCortexConnexion() {
 /**
  * met à jour les coordonnées X, Y, Z de l'objet [objectIndex] ainsi que les angles azimut (angle horizontal) et elevation
  */
-int getObjectPositionCortex(int objectIndex, float* X, float* Y, float* Z, double* azimut, double* elevation) {
+int getObjectPositionCortexID(int objectIndex, float* X, float* Y, float* Z, double* azimut, double* elevation) {
     int retval = 1;
     sBodyData *bodyData;
     int mark_centre_gravite = 4;
@@ -155,3 +152,11 @@ int getObjectPositionCortex(int objectIndex, float* X, float* Y, float* Z, doubl
     }
     return retval;
 }
+
+int getObjectPositionCortexByName(char *objectName, float* X, float* Y, float* Z, double* azimut, double* elevation) {
+    int retval = 1;
+    //int objectIndex = 0;
+    //retval = getObjectPositionCortexID(objectIndex, X, Y, Z, azimut, elevation);
+    return retval;
+}
+
