@@ -16,7 +16,5 @@ function err = openCortex()
         fprintf('%s\n',  errorMessage.Value{1});
     end
     clear errorMessage;
-    
-    %unloadlibrary('Cortex_Matlab');
 end
 
