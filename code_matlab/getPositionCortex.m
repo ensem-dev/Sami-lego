@@ -1,11 +1,11 @@
-function position = getPositionCortexByID(objectIndex)
+function position = getPositionCortex(objectIndex)
   x = libpointer('singlePtr',0);
   y = libpointer('singlePtr',0);
   z = libpointer('singlePtr', 0);
   azimut = libpointer('doublePtr', 0);
   elevation = libpointer('doublePtr', 0);
 
-  ret = calllib('Cortex_Matlab','getObjectPositionCortexID', objectIndex, x, y, z, azimut, elevation);
+  ret = calllib('Cortex_Matlab','getPositionCortex', objectIndex, x, y, z, azimut, elevation);
   %fprintf('retour=%i\n', ret)
   %fprintf('position : x=%f, y=%f, z=%f, azimut=%f, élévation=%f\n',...
   %  get(x,'value'),get(y,'value'),get(z,'value'),get(azimut,'value'),get(elevation,'value'))

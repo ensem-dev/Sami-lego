@@ -10,8 +10,11 @@
      __declspec(dllexport) int getCortexConnexion(char * ipCortexServerr, char ** errorMessage);
 
      //met à jour les coordonnées X, Y, Z de l'objet [objectIndex] ainsi que les angles azimut (angle horizontal) et elevation
-     __declspec(dllexport) int getObjectPositionCortexID(int objectIndex, float* X, float* Y, float* Z, double* azimut, double* elevation);
+     //Deprecated - use insted the getObjectPositionCortexID function.
+     __declspec(dllexport) int getPositionCortex(int objectIndex, float* X, float* Y, float* Z, double* azimut, double* elevation);
      //met à jour les coordonnées X, Y, Z de l'objet [objectIndex] ainsi que les angles azimut (angle horizontal) et elevation
+     __declspec(dllexport) int getObjectPositionCortexID(int objectIndex, float* X, float* Y, float* Z, double* azimut, double* elevation);
+     //met à jour les coordonnées X, Y, Z de l'objet nommé ainsi que les angles azimut (angle horizontal) et elevation
      __declspec(dllexport) int getObjectPositionCortexByName(char *objectName, float* X, float* Y, float* Z, double* azimut, double* elevation);
 
     //Annule la connexion Cortex pour libérer proprement la mémoire et permettre d'autres connexions ultérieures

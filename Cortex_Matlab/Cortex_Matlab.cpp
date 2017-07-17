@@ -71,8 +71,13 @@ int getCortexConnexion(char * ipCortexServer, char ** errorMessage) {
     int isConnected = Cortex_IsClientCommunicationEnabled();
     char host_matlab[20] = "";
     int retval;
-    sBodyDefs* bodies;
+
+//    sBodyDefs* bodies;
+    sFrameOfData *frame;
+    sBodyData *bodyData;
+
     int nbBodies;
+    int cptBodies;
     char vOut[255];
     char message[1025] = "Liste des objets suivit :\n";
     if (!isConnected) {
@@ -82,16 +87,25 @@ int getCortexConnexion(char * ipCortexServer, char ** errorMessage) {
         retval = Cortex_Initialize(host_matlab, ipCortexServer);
         if (retval == RC_Okay) {
             isConnected = Cortex_IsClientCommunicationEnabled();
-            bodies = Cortex_GetBodyDefs();
-            if (bodies) {
-                nbBodies = bodies->nBodyDefs;
-                for (int i = 0; i < nbBodies; i++) {
-                    sprintf_s(vOut, 255, "objet %d : %s.\n", i, bodies->BodyDefs[i].szName);
+            //bodies = Cortex_GetBodyDefs();  // Il semblerais que GetBodyDefs plante Matlab. En passant par Frame ça semble bien meilleur !
+            //if (bodies) {
+            //    nbBodies = bodies->nBodyDefs;
+            //    for (int i = 0; i < nbBodies; i++) {
+                //    sprintf_s(vOut, 255, "objet %d : %s.\n", i, bodies->BodyDefs[i].szName);
+                //    strcat_s(message, 1024, vOut);
+           //     }
+                //Cortex_FreeBodyDefs(bodies);
+            frame = Cortex_GetCurrentFrame();
+            if (frame) {
+                nbBodies = frame->nBodies;
+                for (cptBodies = 0; cptBodies < nbBodies; cptBodies++) {
+                    bodyData = &(frame->BodyData[cptBodies]);
+                    sprintf_s(vOut, 255, "objet %d : %s.\n", cptBodies, bodyData->szName);
                     strcat_s(message, 1024, vOut);
                 }
-                Cortex_FreeBodyDefs(bodies);
+                Cortex_FreeFrame(frame);
                 *errorMessage = _strdup(message);
-            } else{
+            } else {
                 *errorMessage = _strdup("Ok c'est bon on a initialise une connexion, mais l'application cortex n'est pas bien démarrée");
             }
         } else {
@@ -114,6 +128,10 @@ int exitCortexConnexion() {
     return retval;
 }
 
+//Deprecated - Juste to compatible with old Matlab programs
+int getPositionCortex(int objectIndex, float* X, float* Y, float* Z, double* azimut, double* elevation) {
+    return getObjectPositionCortexID(objectIndex, X, Y, Z, azimut, elevation);
+}
 
 /**
  * met à jour les coordonnées X, Y, Z de l'objet [objectIndex] ainsi que les angles azimut (angle horizontal) et elevation
