@@ -1,3 +1,9 @@
+% fleet : la flote de robots
+% FinalPosition : tableau de coordonnées X/Y pour les robots de la flotte
+% time : le temps aloué pour rejoindre la cible
+% Plot : pour tracer la trajectoire
+% stop : booléen pour arrêter (ou pas) les robots en fin de cycle
+
 function Fin=GoTo(fleet,FinalPosition,time,Plot,stop)
 
 if(time == -1)
@@ -32,50 +38,46 @@ t = clock;
 while(test1 && any(nothere)|| test2 && (etime(clock,t)<time) && any(nothere))
     
     % Angle
-CurrentOrientation = GetOrientationLegoF(fleet);
+    CurrentOrientation = GetOrientationLegoF(fleet);
+    RefOrientation = InWhichDirection([CPX(:,p) CPY(:,p)],FinalPosition);
+    DiffAngle = RefOrientation - CurrentOrientation;
+    % Sens
+    e1 = DiffAngle>-2*pi & DiffAngle<=-pi;
+    e2 = DiffAngle>= 0 & DiffAngle<= pi;
+    e3 = DiffAngle>-pi & DiffAngle<0;
+    e4 = DiffAngle>pi & DiffAngle<2*pi;
+    % e1 = abs(CurrentOrientation)>abs(RefOrientation);
 
-RefOrientation = InWhichDirection([CPX(:,p) CPY(:,p)],FinalPosition);
+    % Sens = 1*not(e1)-1*e1;
+    Sens = 1*(e1+e2) -1*(e3+e4);
+    DiffAngle = (-(abs(DiffAngle)-pi).^2+10)/10;%.*t;
+    Vang = Kang.*Sens.*abs(DiffAngle);
+    %Saturation de la vitesse angulaire.
+    ub = Vang>VangMax;
+    lb = Vang<-VangMax;
+    Vang = Vang.*not(ub | lb)+VangMax.*ub-VangMax.*lb;
 
-DiffAngle = RefOrientation - CurrentOrientation;
+    % Mise a jour du critere de test*
+    Continue = D(:,p)>10;
+    nothere = any(Continue);
+    Vlin = Klin*D(:,p);
+    VCmd=min(Vlin,200).*Continue.*1./(1+4*abs(DiffAngle));
 
+    SetVelocityLegoF(fleet,VCmd,Vang);
 
-% Sens
-e1 = DiffAngle>-2*pi & DiffAngle<=-pi;
-e2 = DiffAngle>= 0 & DiffAngle<= pi;
-e3 = DiffAngle>-pi & DiffAngle<0;
-e4 = DiffAngle>pi & DiffAngle<2*pi;
-% e1 = abs(CurrentOrientation)>abs(RefOrientation);
+    if(Plot==1)
+        hold on
+        plot(CPX(:,p),CPY(:,p),'b+')
+    end
 
-% Sens = 1*not(e1)-1*e1;
-Sens = 1*(e1+e2) -1*(e3+e4);
-DiffAngle = (-(abs(DiffAngle)-pi).^2+10)/10;%.*t;
-Vang = Kang.*Sens.*abs(DiffAngle);
-%Saturation de la vitesse angulaire.
-ub = Vang>VangMax;
-lb = Vang<-VangMax;
-Vang = Vang.*not(ub | lb)+VangMax.*ub-VangMax.*lb;
+    pause(Te);
+    [CPX(:,p+1) CPY(:,p+1)] = GetPositionLegoF(fleet);
+    D(:,p+1) = distance([CPX(:,p+1) CPY(:,p+1)],FinalPosition);
 
-% Mise a jour du critere de test*
-Continue = D(:,p)>10;
-nothere = any(Continue);
-Vlin = Klin*D(:,p);
-VCmd=min(Vlin,200).*Continue.*1./(1+4*abs(DiffAngle));
+    % [CPX(:,p) FinalPosition(:,1) CPY(:,p) FinalPosition(:,2) D(:,p) Continue Vang VCmd]
 
-SetVelocityLegoF(fleet,VCmd,Vang);
-
-if(Plot==1)
-    hold on
-          plot(CPX(:,p),CPY(:,p),'b+')
-end
-
-pause(Te);
-[CPX(:,p+1) CPY(:,p+1)] = GetPositionLegoF(fleet);
-D(:,p+1) = distance([CPX(:,p+1) CPY(:,p+1)],FinalPosition);
-
-% [CPX(:,p) FinalPosition(:,1) CPY(:,p) FinalPosition(:,2) D(:,p) Continue Vang VCmd]
-
-Fin = [CPX(:,end) CPY(:,end)];
-p=p+1;
+    Fin = [CPX(:,end) CPY(:,end)];
+    p=p+1;
 end
 hold off
 %stop all robots
