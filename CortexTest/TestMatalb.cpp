@@ -122,5 +122,32 @@ namespace CortexTest
             }
             exitCortexConnexion();
         }
+
+        TEST_METHOD(TestGetObjectPositionCortexByName) {
+            char *ipCortexServer = "192.168.1.109";
+            char *errorMessage[256];// = "pas de message";
+            int retval;
+            wchar_t buff[256];
+
+            int objectIndex = 0;
+            char* objectName = "Lego_04";
+            float X = 0.0;
+            float Y = 0.0;
+            float Z = 0.0;
+            double azimut = 0.0;
+            double elevation = 0.0;
+            
+            getCortexConnexion(ipCortexServer, errorMessage);
+            retval = getObjectPositionCortexByName(objectName, &X, &Y, &Z, &azimut, &elevation);
+            Assert::AreEqual(0, retval);
+            swprintf(buff, 255, L"position X  : X=%f", X);
+            Logger::WriteMessage(buff);
+            swprintf(buff, 255, L"position Y  : Y=%f", Y);
+            Logger::WriteMessage(buff);
+            swprintf(buff, 255, L"position Z  : Z=%f", Z);
+            Logger::WriteMessage(buff);
+
+            exitCortexConnexion();
+        }
     };
 }

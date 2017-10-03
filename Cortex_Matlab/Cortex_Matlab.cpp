@@ -184,8 +184,54 @@ int getObjectPositionCortexID(int objectIndex, float* X, float* Y, float* Z, dou
     return retval;
 }
 
-int getObjectPositionCortexByName(char *objectName, float* X, float* Y, float* Z, double* azimut, double* elevation) {
+int getObjectPositionCortexByName(char* objectName, float* X, float* Y, float* Z, double* azimut, double* elevation) {
     int retval = 1;
+    sBodyData *bodyData;
+    int mark_centre_gravite = 4;
+    int mark_direction = 6;
+
+
+    int numBody;
+ 
+    sFrameOfData *frame;
+    if (Cortex_IsClientCommunicationEnabled()) {
+        // A chaque appel on demande la dernière position connue
+        frame = Cortex_GetCurrentFrame();
+        if (frame) {
+            for (numBody = 0; numBody < frame->nBodies; numBody++)
+            {
+                bodyData = &(frame->BodyData[numBody]);
+                if (strcmp(bodyData->szName, objectName) == 0)
+                {
+                    *X = bodyData->Markers[mark_centre_gravite][0];
+                    *Y = bodyData->Markers[mark_centre_gravite][1];
+                    *Z = bodyData->Markers[mark_centre_gravite][2];
+
+                    //calcul de l'orientation du robot dans le plan de la scène (en degres)
+                    *azimut = atan2(bodyData->Markers[mark_direction][1] - *Y, bodyData->Markers[mark_direction][0] - *X)*180.0 / M_PI;
+
+                    (*elevation) = 0.0;
+                    retval = 0;
+                }
+            }
+        }
+        else {
+            //TODO pas normal d'avoir une réponse vide
+            //            *X = 8888888;
+            //            *Y = 8888888;
+            //            *Z = 8888888;
+
+            //calcul de l'orientation du robot dans le plan de la scène (en degres)
+            //            *azimut = 0.0;
+
+            //            (*elevation) = 0.0;
+            retval = 1;
+        }
+    }
+    else {
+        //TODO générer une exception pour demander d'initialiser une connexion au préalable
+    }
+    
     //int objectIndex = 0;
     //retval = getObjectPositionCortexID(objectIndex, X, Y, Z, azimut, elevation);
     return retval;
