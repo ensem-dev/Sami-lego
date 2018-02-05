@@ -3,13 +3,15 @@ fleet = LegoFleet(3);
 for i = 1:fleet.NumberOfLegoRobots
     LegoName = char(fleet.LegoNameArray(i));
     Current_Lego = ConnectLego(LegoName);
-    StarMotors(Current_Lego);
-    SetVelocityOneLego(Current_Lego, 10, 10);
+    StartMotors(Current_Lego);
+    %GOTO (Current_Lego, [X, Y destination], time_to_reach_point, plot,
+    %bool stop)
+    SetVelocityOneLego(Current_Lego, 0, 0);
    % CommandLego( LegoName, 10, 10 );
     clear Current_Lego;
 end
 
-
+pause(5);
 %stoping all motors
 for i = 1:fleet.NumberOfLegoRobots
     LegoName = char(fleet.LegoNameArray(i));

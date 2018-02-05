@@ -1,7 +1,7 @@
 % fleet : la flote de robots
 % FinalPosition : tableau de coordonnées X/Y pour les robots de la flotte
 % time : le temps aloué pour rejoindre la cible
-% Plot : pour tracer la trajectoire
+% Plot : booléen pour tracer la trajectoire
 % stop : booléen pour arrêter (ou pas) les robots en fin de cycle
 
 function Fin=GoTo(fleet,FinalPosition,time,Plot,stop)
@@ -14,21 +14,28 @@ else
     test2 = 1;
 end
 
-Te = 0.01;
-%1.1
-Kang =2;
-Klin = 0.45;
-delta = 89;
-% VangMax = 2*abs(V)/delta;
-VangMax = 2*250/delta;
-
+Te = 0.1;
+Kang =0.2;
+Klin = 1;
+delta = 146; %entraxe de l'essieu en mm
+VangMax = 2*25/delta;
 
 [CPX(:,1) CPY(:,1)] = GetPositionLegoF(fleet);
-D(:,1) = distance([CPX(:,1) CPY(:,1)],FinalPosition);
+while (min(abs(CPX(:,1))) > 2000 || min(abs(CPY(:,1))) > 2000) %tant que les valeurs sont abérantes on rappelle les
+                                                     %coordonnées
+    [CPX(:,1) CPY(:,1)] = GetPositionLegoF(fleet);
+end
+
+
+D = zeros(fleet.NumberOfLegoRobots,1);
+for i=1:fleet.NumberOfLegoRobots
+   D(i,1) = sqrt((CPX(i,1)-FinalPosition(i,1))^2+(CPY(i,1)-FinalPosition(i,2))^2);
+end
+
 
 if(Plot==1)
         plot(FinalPosition(:,1),FinalPosition(:,2),'ro');
-        hold on;
+        hold on; %Pour mettre à jour le plot
         plot(CPX(:,1),CPY(:,1),'r+');
 end
 
@@ -38,30 +45,26 @@ t = clock;
 while(test1 && any(nothere)|| test2 && (etime(clock,t)<time) && any(nothere))
     
     % Angle
-    CurrentOrientation = GetOrientationLegoF(fleet);
+    CurrentOrientation = GetOrientationLegoF(fleet)*pi/180.0;
+
     RefOrientation = InWhichDirection([CPX(:,p) CPY(:,p)],FinalPosition);
     DiffAngle = RefOrientation - CurrentOrientation;
-    % Sens
-    e1 = DiffAngle>-2*pi & DiffAngle<=-pi;
-    e2 = DiffAngle>= 0 & DiffAngle<= pi;
-    e3 = DiffAngle>-pi & DiffAngle<0;
-    e4 = DiffAngle>pi & DiffAngle<2*pi;
-    % e1 = abs(CurrentOrientation)>abs(RefOrientation);
-
-    % Sens = 1*not(e1)-1*e1;
-    Sens = 1*(e1+e2) -1*(e3+e4);
-    DiffAngle = (-(abs(DiffAngle)-pi).^2+10)/10;%.*t;
-    Vang = Kang.*Sens.*abs(DiffAngle);
+    
+    Vang = Kang*DiffAngle;
+    
+    %test pour arrêter les robots quand ils sont arrivés
+    Continue = D(:,p)>delta/4;
+    nothere = any(Continue); %si tous les robots sont arrivés, on sort de la boucle while (nothere = 0)
     %Saturation de la vitesse angulaire.
     ub = Vang>VangMax;
     lb = Vang<-VangMax;
     Vang = Vang.*not(ub | lb)+VangMax.*ub-VangMax.*lb;
-
+    Vang = Vang.*Continue;
     % Mise a jour du critere de test*
-    Continue = D(:,p)>10;
-    nothere = any(Continue);
+
     Vlin = Klin*D(:,p);
-    VCmd=min(Vlin,200).*Continue.*1./(1+4*abs(DiffAngle));
+%     VCmd=min(Vlin,200).*Continue.*1./(1+4*abs(DiffAngle));
+    VCmd=min(Vlin,200).*Continue.*1./(1+abs(DiffAngle));
 
     SetVelocityLegoF(fleet,VCmd,Vang);
 
@@ -72,9 +75,14 @@ while(test1 && any(nothere)|| test2 && (etime(clock,t)<time) && any(nothere))
 
     pause(Te);
     [CPX(:,p+1) CPY(:,p+1)] = GetPositionLegoF(fleet);
-    D(:,p+1) = distance([CPX(:,p+1) CPY(:,p+1)],FinalPosition);
+    while (min(abs(CPX(:,1))) > 2000 || min(abs(CPY(:,1))) > 2000) %tant que les valeurs sont abérantes on rappelle les
+                                                     %coordonnées
+        [CPX(:,1) CPY(:,1)] = GetPositionLegoF(fleet);
+    end
 
-    % [CPX(:,p) FinalPosition(:,1) CPY(:,p) FinalPosition(:,2) D(:,p) Continue Vang VCmd]
+    for i=1:fleet.NumberOfLegoRobots
+          D(i,p+1) = sqrt((CPX(i,p+1)-FinalPosition(i,1))^2+(CPY(i,p+1)-FinalPosition(i,2))^2)
+    end
 
     Fin = [CPX(:,end) CPY(:,end)];
     p=p+1;
@@ -82,5 +90,5 @@ end
 hold off
 %stop all robots
 if(stop==1)
-SetVelocityF(fleet, zeros(LegoFleet.NumberOfLegoRobots,1),zeros(LegoFleet.NumberOfLegoRobots,1));
+    SetVelocityLegoF(fleet, zeros(fleet.NumberOfLegoRobots,1),zeros(fleet.NumberOfLegoRobots,1));
 end
