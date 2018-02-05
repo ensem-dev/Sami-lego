@@ -9,6 +9,9 @@ namespace CortexTest
 	{
 	public:
 		
+        /**
+         * On test ici le framework de test unitaire afin de s'assurer du bon fonctionnmenet de l'ensemble
+         */
 		TEST_METHOD(TestMethod1)
 		{
 			// TODO: Ici, votre code de test

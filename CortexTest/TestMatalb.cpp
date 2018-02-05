@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "TestConstantes.h"
 
 #include "../dllCortex/Cortex.h"
 #include "../Cortex_Matlab/Cortex_Matlab.h"
@@ -11,21 +12,26 @@ namespace CortexTest
     {
     public:
 
+        /**
+         * Sélectionne l'adresse IP de la machine qui est sur le même réseau que l'adresse distante passée en paramètre
+         * les valeurs à tester sont écrite dans le fichier TestConstantes.h
+         */
         TEST_METHOD(TestFindLocalIP) {
+            char *expectedIP = "100.64.212.129"; // cette IP est celle de la machine sur laquelle le test est lancé.
             char localIP[20];
-            bool retval = findLocalIP("192.168.1.109", localIP);
-            Assert::IsTrue(retval);
-            Assert::AreEqual("192.168.1.103", localIP);
+            bool retval = findLocalIP(IP_CORTEX, localIP);
+            Assert::IsTrue(retval, L"aucune adresse IP correspondante trouvée. Vérifier TestConstantes.h");
+            Assert::AreEqual(expectedIP, localIP, L"Vérifier les adresses IP dans le fichier TestConstantes.h");
         }
 
+        /** Test d'utilisation de la méthode _strdup
+         */
         // https://msdn.microsoft.com/fr-fr/library/y471khhc.aspx
         TEST_METHOD(Test_strdup) {
             char buffer[] = "This is the buffer text";
             char *newstring;
             Logger::WriteMessage(buffer);
-            //printf("Original: %s\n", buffer);
             newstring = _strdup(buffer);
-            //printf("Copy:     %s\n", newstring);
             Logger::WriteMessage(newstring);
             free(newstring);
         }
@@ -42,19 +48,23 @@ namespace CortexTest
             free(str);
         }
 
+        /** On controle la connexion à la platform Cortex*/
         TEST_METHOD(TestGetConnexion) {
-            char *ipCortexServer = "192.168.1.109";
             char *errorMessage = NULL;
             int retval;
-            //sprintf_s(*errorMessage, 255, "pas de message");
-            retval = getCortexConnexion(ipCortexServer, &errorMessage);
+            retval = getCortexConnexion(IP_CORTEX, &errorMessage);
             Logger::WriteMessage(errorMessage);
             Assert::AreEqual(1, retval);
+            if (strcmp(errorMessage, "Ok c'est bon on a initialise une connexion, mais l'application cortex n'est pas bien démarrée")) {
+                Assert::Fail(L"getFrame ne fonctionne pas");
+            }
             free(errorMessage);
         }
 
+        /**
+         * On essaie de lire la position du premier mobile géré par Cortex
+         */
         TEST_METHOD(TestGetObjectPositionCortex) {
-            char *ipCortexServer = "192.168.1.109";
             char *errorMessage[256];// = "pas de message";
             int retval;
             wchar_t buff[256];
@@ -66,7 +76,7 @@ namespace CortexTest
             double azimut = 0.0;
             double elevation = 0.0;
 
-            getCortexConnexion(ipCortexServer, errorMessage);
+            getCortexConnexion(IP_CORTEX, errorMessage);
             //if (retval) {
                 retval = getObjectPositionCortexID(objectIndex, &X, &Y, &Z, &azimut, &elevation);
                 Assert::AreEqual(0, retval);
@@ -89,11 +99,11 @@ namespace CortexTest
         }
 
         TEST_METHOD(TestGetObjectPositionCortex1000) {
-            char *ipCortexServer = "192.168.1.109";
+            int nbCycle = 10; //Selon le nom du test cette valeur devrait être 1000
+
             char *errorMessage[256];// = "pas de message";
             int retval;
             char buff[256];
-
             int objectIndex = 0;
             float X = 0.0;
             float Y = 0.0;
@@ -101,11 +111,10 @@ namespace CortexTest
             double azimut = 0.0;
             double elevation = 0.0;
             int cpt = 0;
-            getCortexConnexion(ipCortexServer, errorMessage);
-            while (cpt < 10000) {
+            getCortexConnexion(IP_CORTEX, errorMessage);
+            while (cpt < nbCycle) {
                 retval = getObjectPositionCortexID(objectIndex, &X, &Y, &Z, &azimut, &elevation);
                 if (!retval) {
-                    cpt++;
                     //sprintf_s(buff, 255, "%i", cpt);
                     //Logger::WriteMessage(buff);
                     //swprintf(buff, 255, L"position X  : X=%f", X);
@@ -119,25 +128,26 @@ namespace CortexTest
                     Logger::WriteMessage(buff);
                     //cpt = 10001;
                 }
+                cpt++;
             }
             exitCortexConnexion();
         }
 
         TEST_METHOD(TestGetObjectPositionCortexByName) {
-            char *ipCortexServer = "192.168.1.109";
+            char* objectName = "Lego_04"; //Il faut que cette objet soit déclaré parmi les mobiles gérés par Cortex
+
             char *errorMessage[256];// = "pas de message";
             int retval;
             wchar_t buff[256];
 
             int objectIndex = 0;
-            char* objectName = "Lego_04";
             float X = 0.0;
             float Y = 0.0;
             float Z = 0.0;
             double azimut = 0.0;
             double elevation = 0.0;
             
-            getCortexConnexion(ipCortexServer, errorMessage);
+            getCortexConnexion(IP_CORTEX, errorMessage);
             retval = getObjectPositionCortexByName(objectName, &X, &Y, &Z, &azimut, &elevation);
             Assert::AreEqual(0, retval);
             swprintf(buff, 255, L"position X  : X=%f", X);

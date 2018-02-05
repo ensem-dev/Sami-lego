@@ -68,11 +68,9 @@ bool findLocalIP(char *remoteHostIP, char LocalIPBuff[20]) {
  * https://stackoverflow.com/questions/7445054/passing-pointer-argument-in-matlab-to-a-c-dll-function-foochar
  */
 int getCortexConnexion(char * ipCortexServer, char ** errorMessage) {
-    int isConnected = Cortex_IsClientCommunicationEnabled();
     char host_matlab[20] = "";
     int retval;
 
-//    sBodyDefs* bodies;
     sFrameOfData *frame;
     sBodyData *bodyData;
 
@@ -80,6 +78,8 @@ int getCortexConnexion(char * ipCortexServer, char ** errorMessage) {
     int cptBodies;
     char vOut[255];
     char message[1025] = "Liste des objets suivit :\n";
+
+    int isConnected = Cortex_IsClientCommunicationEnabled();
     if (!isConnected) {
         Cortex_SetClientCommunicationEnabled(1);
         //retval = Cortex_ConfigurePortNumbers(0, -1, -1);

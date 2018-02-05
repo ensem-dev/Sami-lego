@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "TestConstantes.h"
 
 #include <winsock2.h>  //DWORD....
 #include <IPHlpApi.h>   //GAA_FLAG_INCLUDE_PREFIX
@@ -15,11 +16,13 @@ namespace GetHostIpTest
     TEST_CLASS(TestGetHostIp)
     {
     public:
-
+        /** 
+         * Trouve les adresse IP de la machine et découvre l'IP qui correspond au réseau sélectionné dans IpNetwork.
+         * Permet en même temp de connaitre le masque de sous réseau.
+         */
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa366309(v=vs.85).aspx
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa365949(v=vs.85).aspx
         TEST_METHOD(TestGetIpAddrTable) {
-            char *IpNetwork = "192.168.1.109";
             int ipSubnet = 0;
             char buff[256];
             MIB_IPADDRTABLE *pIPAddrTable;
@@ -31,7 +34,7 @@ namespace GetHostIpTest
             IN_ADDR IPSubnet2;
             char ipBuff[20];
 
-            inet_pton(AF_INET, IpNetwork, &ipSubnet);
+            inet_pton(AF_INET, IP_CORTEX, &ipSubnet);
             sprintf_s(buff, 255, "IP HostCortex : %d", ipSubnet);
             Logger::WriteMessage(buff);
 
@@ -69,8 +72,6 @@ namespace GetHostIpTest
                                 Logger::WriteMessage(buff);
                                 if (IPSubnet.S_un.S_addr == IPSubnet2.S_un.S_addr) {
                                     Logger::WriteMessage("on a trouver la bonne ip");
-                                    //sprintf_s(buff, 255, "\t%s", ipBuff);
-                                    //Logger::WriteMessage(buff);
                                 }
                             }
                         }

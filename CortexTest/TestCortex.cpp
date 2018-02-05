@@ -1,5 +1,6 @@
 #include "stdafx.h"
- 
+#include "TestConstantes.h"
+
 /** pour pouvoir mettre PI dans le code **/
 #define _USE_MATH_DEFINES // for C++  
 #include <cmath>  
@@ -9,6 +10,7 @@
 /*****************************************/
 
 #include "../dllCortex/Cortex.h"
+#include "../dllSami/Cortex_Matlab.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -52,6 +54,26 @@ namespace CortexTest
             retval = Cortex_IsClientCommunicationEnabled();
             int expected = 0;
             Assert::AreEqual(expected, retval);
+            Cortex_SetClientCommunicationEnabled(1);
+            retval = Cortex_IsClientCommunicationEnabled();
+            expected = 1;
+            Assert::AreEqual(expected, retval);
+        }
+
+        /** Test l'initailisation de la communication avec le poste Coretex */
+        TEST_METHOD(TestCortex_Initialize) {
+            int retval = 4;
+            Cortex_SetClientCommunicationEnabled(1);
+            retval = Cortex_Initialize(NULL, IP_CORTEX);
+            if (retval == RC_NetworkError) {
+                Assert::Fail(L"Le poste Cortex n'est pas connecté");
+            }
+            else {
+                Assert::AreEqual(0, retval, L"Le retour de Cortex_Initialize n'est pas bon");
+                sFrameOfData *frame;
+                frame = Cortex_GetCurrentFrame();
+                Assert::IsNotNull(frame, L"L'application Cortex ne répond pas");
+           }
         }
 
         TEST_METHOD(TestConfigurePortNumbers) {
@@ -65,8 +87,6 @@ namespace CortexTest
             int isConnexted;
             sBodyDefs* bodies;
             int nbBodies;
-            char *host_matlab = "192.168.1.103";
-            char *host_cortex = "192.168.1.109";
             int retval = -1;
             char vOut[255];
             Logger::WriteMessage("on va tenter une connexion");
@@ -74,59 +94,40 @@ namespace CortexTest
                 Cortex_SetClientCommunicationEnabled(1);
                 retval = Cortex_ConfigurePortNumbers(0, -1, -1);
                 Assert::AreEqual((int)RC_Okay, retval, L"pb Cortex_ConfigurePortNumbers");
-                retval = Cortex_Initialize(host_matlab, host_cortex);
+                retval = Cortex_Initialize(LOCAL_IP, IP_CORTEX);
                 //Assert::AreEqual((int)RC_NetworkError, retval, L"general error");
                 Assert::AreEqual((int)RC_Okay, retval, L"pb Cortex_Initialize");
             }
             Logger::WriteMessage("on va tenter une requete");
             isConnexted = Cortex_IsClientCommunicationEnabled();
             Assert::AreEqual(1, isConnexted);
+            Logger::WriteMessage("on a eu la réponse à notre requete");
             //Controle l'existance d'une connexion active avant interrogation du système
             if (isConnexted) {
                 bodies = Cortex_GetBodyDefs();
-                nbBodies = bodies->nBodyDefs;
-                sprintf_s(vOut, 255, "Nb objets détectés : %d.", nbBodies);
-                Logger::WriteMessage(vOut);
-                //Assert::AreEqual(2, nbBodies);
-                for (int i = 0; i < nbBodies; i++) {
-                    sprintf_s(vOut, 255, "objet %d : %s.", i, bodies->BodyDefs[i].szName);
+                if (bodies != NULL) {
+                    nbBodies = bodies->nBodyDefs;
+                    sprintf_s(vOut, 255, "Nb objets détectés : %d.", nbBodies);
                     Logger::WriteMessage(vOut);
+                    //Assert::AreEqual(2, nbBodies);
+                    for (int i = 0; i < nbBodies; i++) {
+                        sprintf_s(vOut, 255, "objet %d : %s.", i, bodies->BodyDefs[i].szName);
+                        Logger::WriteMessage(vOut);
+                    }
+                    Cortex_FreeBodyDefs(bodies);
                 }
-                Cortex_FreeBodyDefs(bodies);
+                else {
+                    Logger::WriteMessage("Problème recupération data cortex");
+                    Cortex_Exit();
+                    Assert::Fail(L"Cortex ne repond pas comme il faut");
+                }
                 retval = Cortex_Exit();
                 Assert::AreEqual((int)RC_Okay, retval);
                 //Cortex_SetClientCommunicationEnabled(0);
             }
         }
 
-        int getCortexConnexion(char * ipCortexServer) {
-            int isConnected = Cortex_IsClientCommunicationEnabled();
-            char *host_matlab = "192.168.1.103";  //TODO trouver l'IP de la machine courante
-            int retval;
-            if (!isConnected) {
-                Cortex_SetClientCommunicationEnabled(1);
-                //retval = Cortex_ConfigurePortNumbers(0, -1, -1);
-                retval = Cortex_Initialize(host_matlab, ipCortexServer);
-                if (retval == RC_Okay) {
-                    isConnected = Cortex_IsClientCommunicationEnabled();
-                    Logger::WriteMessage("Ok c'est bon on a initialisé une connexion");
-                }
-                else {
-                    isConnected = false;
-                    Logger::WriteMessage("Aie y a un problème");
-                    Assert::Fail(L"on ne devrait sortir par là - la connexion ne c'est pas faite");
-                    //TODO throw error with errorCode
-                }
-            }
-            else {
-                Logger::WriteMessage("Déjà connexté");
-            }
-            return isConnected;
-        }
-
         TEST_METHOD(TesGetCurrentFrame) {
-            char *ipCortexServer = "192.168.1.109";
-            char *errorMessage = 0;
             int numBodies;
             int nbObjTracked;
             sBodyData bodyData;
@@ -151,10 +152,10 @@ namespace CortexTest
 
             char buff[255];
             int isConnected = Cortex_IsClientCommunicationEnabled();
-            char *host_matlab = "192.168.1.103";  //TODO trouver l'IP de la machine courante
             int retval;
             sFrameOfData* positions = 0;
-            if (getCortexConnexion(ipCortexServer)) {
+            char *errorMessage = NULL;
+            if (getCortexConnexion(IP_CORTEX, &errorMessage)) {
                 Logger::WriteMessage(errorMessage);
                 while (cptCycle<maxCycle) {
                     cptCycle++;

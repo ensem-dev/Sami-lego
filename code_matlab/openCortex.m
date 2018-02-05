@@ -4,6 +4,7 @@ function err = openCortex()
     %libfunctions Cortex_Matlab -full
     
     ipCortexServer = libpointer('string',  '192.168.1.109');
+    %ipCortexServer = libpointer('string',  '100.64.212.150');
     
     %# pass c-string by reference
     errorMessage = libpointer('stringPtrPtr',{''}); %# we use a cellarray of strings
